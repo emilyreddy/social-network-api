@@ -1,66 +1,52 @@
-const { Schema, model, Types } = require('mongoose')
-const dateFormat = require('../utils/dateFormat')
+const mongoose = require('mongoose');
 
-const ReactionSchema = new Schema(
-    {
-        reactionId: {
-            type: Schema.Types.ObjectId,
-            default: () => new Types.ObjectId
-        },
-        reactionBody: {
-            type: String,
-            required: true,
-            maxLength: 280
-        },
-        username: {
-            type: String,
-            required: true
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now,
-            get: createdAtVal => dateFormat(createdAtVal)
-        }
+const reactionSchema = new mongoose.Schema(
+  {
+    reactionBody: {
+      type: String,
+      required: true,
+      min: 1,
+      max: 280,
     },
-    {
-        toJSON: {
-            getters: true
-        }
-    }
-)
-
-const ThoughtSchema = new Schema(
-    {
-        thoughtText: {
-            type: String,
-            required: true,
-            minLength: 1,
-            maxLength: 280
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now,
-            get: createdAtVal => dateFormat(createdAtVal)
-        },
-        username: {
-            type: String,
-            required: true
-        },
-        reactions: [ReactionSchema]
+    username: {
+      type: String,
+      required: true,
     },
-    {
-        toJSON: {
-            virtuals: true,
-            getters: true
-        },
-        id: false
-    }
-)
+    createdAt: {
+      immutable: true,
+      type: Date,
+      default: () => Date.now(),
+    },
+    updatedAt: {
+      type: Date,
+      default: () => Date.now(),
+    },
+  });
 
-ThoughtSchema.virtual('reactionCount').get(function() {
-    return this.reactions.length
-})
+const thoughtSchema = new mongoose.Schema(
+  {
+    thoughtText: {
+      type: String,
+      required: true,
+      min: 1,
+      max: 255,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    createdAt: {
+      immutable: true,
+      type: Date,
+      default: () => Date.now(),
+    },
+    updatedAt: {
+      type: Date,
+      default: () => Date.now(),
+    },
+    reactions: [reactionSchema],
+  });
 
-const Thought = model('Thought', ThoughtSchema)
+  
 
-module.exports = Thought
+  module.exports = mongoose.model('Thought', thoughtSchema);
